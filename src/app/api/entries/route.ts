@@ -9,6 +9,8 @@ export async function GET(request: NextRequest) {
     const groupBy = searchParams.get('groupBy');
     const limitParam = searchParams.get('limit');
     const limit = limitParam === 'all' ? undefined : parseInt(limitParam || '50');
+    const offsetParam = searchParams.get('offset');
+    const offset = parseInt(offsetParam || '0');
     const includeEmbeddings = searchParams.get('includeEmbeddings') === 'true';
 
     const selectFields = {
@@ -23,6 +25,10 @@ export async function GET(request: NextRequest) {
     let query = db.select(selectFields)
       .from(entries)
       .orderBy(desc(entries.createdAt));
+
+    if (offset > 0) {
+      query = query.offset(offset);
+    }
 
     if (limit !== undefined) {
       query = query.limit(limit);

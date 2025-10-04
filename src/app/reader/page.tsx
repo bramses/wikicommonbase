@@ -4,15 +4,16 @@ import DistractionFreeReader from '@/components/DistractionFreeReader';
 import { fetchWikipediaArticle } from '@/lib/wikipedia';
 
 interface ReaderPageProps {
-  searchParams: {
+  searchParams: Promise<{
     article?: string;
     highlight?: string;
-  };
+  }>;
 }
 
 export default async function ReaderPage({ searchParams }: ReaderPageProps) {
-  let articleTitle = searchParams.article;
-  const highlight = searchParams.highlight;
+  const params = await searchParams;
+  let articleTitle = params.article;
+  const highlight = params.highlight;
 
   // If no article specified, get a random one
   if (!articleTitle) {

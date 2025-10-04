@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "WikiGame - Highlight & Connect",
+  title: "Wikipedia Commonbase - Highlight & Connect",
   description: "A distraction-free Wikipedia reading and highlighting tool",
 };
 

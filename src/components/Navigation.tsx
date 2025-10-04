@@ -2,19 +2,39 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Navigation() {
   const pathname = usePathname();
   const router = useRouter();
+  const [unconnectedCount, setUnconnectedCount] = useState(0);
 
   const navItems = [
     { href: '/', label: 'Home', key: 'c' },
     { href: '/reader', label: 'Reader', key: 'v' },
     { href: '/ledger', label: 'Ledger', key: 'b' },
+    { href: '/inbox', label: 'Inbox', key: 'i', badge: unconnectedCount > 0 ? unconnectedCount : undefined },
     { href: '/join', label: 'Join', key: 'n' },
     { href: '/graph', label: 'Graph', key: 'm' },
   ];
+
+  // Fetch unconnected entries count
+  useEffect(() => {
+    const fetchUnconnectedCount = async () => {
+      try {
+        const response = await fetch('/api/entries?limit=1000'); // Get a large batch to count accurately
+        if (response.ok) {
+          const data = await response.json();
+          const unconnectedCount = data.entries.filter((entry: any) => entry.metadata.joins.length === 0).length;
+          setUnconnectedCount(unconnectedCount);
+        }
+      } catch (error) {
+        console.error('Error fetching unconnected count:', error);
+      }
+    };
+
+    fetchUnconnectedCount();
+  }, []);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -54,7 +74,7 @@ export default function Navigation() {
               letterSpacing: '-0.02em',
             }}
           >
-            WikiGame
+            Wikipedia Commonbase
           </Link>
 
           {/* links */}
@@ -75,6 +95,26 @@ export default function Navigation() {
                   aria-current={active ? 'page' : undefined}
                 >
                   <span className="text-sm md:text-base">{item.label}</span>
+                  {item.badge && (
+                    <span
+                      style={{
+                        marginLeft: 'var(--space-xs)',
+                        padding: '2px 6px',
+                        background: 'var(--warning)',
+                        color: 'white',
+                        borderRadius: '50%',
+                        fontSize: '10px',
+                        fontWeight: '600',
+                        minWidth: '18px',
+                        height: '18px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      {item.badge}
+                    </span>
+                  )}
                 </Link>
               );
             })}

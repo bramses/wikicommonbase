@@ -22,7 +22,7 @@ export default function Home() {
               marginBottom: 'var(--space-xl)'
             }}
           >
-            WikiGame
+            Wikipedia Commonbase
           </h1>
           <p
             style={{
@@ -49,6 +49,20 @@ export default function Home() {
               className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
             >
               Start Reading
+            </Link>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-8 shadow-lg">
+            <h2 className="text-2xl font-semibold mb-4">📥 Inbox</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              Review unconnected highlights and join them with related content.
+              Keep your knowledge graph organized and connected.
+            </p>
+            <Link
+              href="/inbox"
+              className="inline-block bg-yellow-600 text-white px-6 py-3 rounded-lg hover:bg-yellow-700 transition-colors"
+            >
+              View Inbox
             </Link>
           </div>
 

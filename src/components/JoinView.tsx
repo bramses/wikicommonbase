@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Entry, SearchResult } from '@/lib/types';
 
 export default function JoinView() {
   const [currentEntry, setCurrentEntry] = useState<Entry | null>(null);
+  const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [selectedResultIndex, setSelectedResultIndex] = useState(0);
@@ -15,12 +17,30 @@ export default function JoinView() {
   const resultRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
-    loadRandomHighlight();
+    const currentEntryId = searchParams.get('current');
+    if (currentEntryId) {
+      loadSpecificEntry(currentEntryId);
+    } else {
+      loadRandomHighlight();
+    }
     // Auto-focus search input when component mounts
     setTimeout(() => {
       searchInputRef.current?.focus();
     }, 100);
-  }, []);
+  }, [searchParams]);
+
+  const loadSpecificEntry = async (entryId: string) => {
+    try {
+      const response = await fetch(`/api/entries/${entryId}`);
+      if (response.ok) {
+        const { entry } = await response.json();
+        setCurrentEntry(entry);
+        await loadJoinedEntries(entry);
+      }
+    } catch (error) {
+      console.error('Error loading specific entry:', error);
+    }
+  };
 
   const loadRandomHighlight = async () => {
     try {
@@ -70,6 +90,19 @@ export default function JoinView() {
       scrollToHighlight: 'true'
     });
     window.open(`/reader?${params.toString()}`, '_blank');
+  };
+
+  const searchWithRandomHighlight = async () => {
+    try {
+      const response = await fetch('/api/random');
+      if (response.ok) {
+        const { entry } = await response.json();
+        setSearchQuery(entry.data);
+        await handleSearch(entry.data);
+      }
+    } catch (error) {
+      console.error('Error getting random highlight for search:', error);
+    }
   };
 
   const handleSearch = async (query: string) => {
@@ -297,34 +330,64 @@ export default function JoinView() {
 
       {/* Search Bar */}
       <div style={{ marginBottom: 'var(--space-2xl)' }}>
-        <input
-          ref={searchInputRef}
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search for highlights to join (press Enter to search)..."
-          style={{
-            width: '100%',
-            padding: 'var(--space-lg)',
-            fontSize: 'var(--text-lg)',
-            background: 'var(--surface-elevated)',
-            border: '1px solid var(--border)',
-            borderRadius: 'var(--radius-md)',
-            color: 'var(--foreground)',
-            transition: 'all 0.2s ease',
-            fontFamily: 'Inter, sans-serif'
-          }}
-          onFocus={(e) => {
-            e.target.style.borderColor = 'var(--accent)';
-            e.target.style.background = 'var(--background)';
-            e.target.style.boxShadow = '0 0 0 3px var(--accent-soft)';
-          }}
-          onBlur={(e) => {
-            e.target.style.borderColor = 'var(--border)';
-            e.target.style.background = 'var(--surface-elevated)';
-            e.target.style.boxShadow = 'none';
-          }}
-        />
+        <div className="flex gap-3">
+          <input
+            ref={searchInputRef}
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search for highlights to join (press Enter to search)..."
+            style={{
+              flex: 1,
+              padding: 'var(--space-lg)',
+              fontSize: 'var(--text-lg)',
+              background: 'var(--surface-elevated)',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--radius-md)',
+              color: 'var(--foreground)',
+              transition: 'all 0.2s ease',
+              fontFamily: 'Inter, sans-serif'
+            }}
+            onFocus={(e) => {
+              e.target.style.borderColor = 'var(--accent)';
+              e.target.style.background = 'var(--background)';
+              e.target.style.boxShadow = '0 0 0 3px var(--accent-soft)';
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = 'var(--border)';
+              e.target.style.background = 'var(--surface-elevated)';
+              e.target.style.boxShadow = 'none';
+            }}
+          />
+          <button
+            onClick={searchWithRandomHighlight}
+            style={{
+              padding: 'var(--space-lg)',
+              background: 'var(--surface)',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--radius-md)',
+              color: 'var(--foreground-secondary)',
+              fontSize: 'var(--text-sm)',
+              fontWeight: '500',
+              transition: 'all 0.2s ease',
+              fontFamily: 'Inter, sans-serif',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--surface-elevated)';
+              e.currentTarget.style.borderColor = 'var(--accent)';
+              e.currentTarget.style.color = 'var(--accent)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'var(--surface)';
+              e.currentTarget.style.borderColor = 'var(--border)';
+              e.currentTarget.style.color = 'var(--foreground-secondary)';
+            }}
+          >
+            Random Search
+          </button>
+        </div>
       </div>
 
       {/* Search Results */}
