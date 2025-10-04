@@ -6,14 +6,22 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "db:reset": "drizzle-kit drop && drizzle-kit push"
   },
   "dependencies": {
     "@types/pg": "^8.15.5",
     "@types/uuid": "^10.0.0",
+    "drizzle-kit": "^0.31.5",
+    "drizzle-orm": "^0.44.6",
     "next": "15.5.4",
     "openai": "^6.1.0",
     "pg": "^8.16.3",
+    "postgres": "^3.4.7",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "uuid": "^13.0.0"

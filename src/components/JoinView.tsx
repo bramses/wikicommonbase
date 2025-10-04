@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Entry, SearchResult } from '@/lib/types';
 
 export default function JoinView() {
@@ -11,9 +11,15 @@ export default function JoinView() {
   const [joinedEntries, setJoinedEntries] = useState<Entry[]>([]);
   const [showJoinedList, setShowJoinedList] = useState(false);
   const [loading, setLoading] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const resultRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     loadRandomHighlight();
+    // Auto-focus search input when component mounts
+    setTimeout(() => {
+      searchInputRef.current?.focus();
+    }, 100);
   }, []);
 
   const loadRandomHighlight = async () => {
@@ -30,7 +36,10 @@ export default function JoinView() {
   };
 
   const loadJoinedEntries = async (entry: Entry) => {
+    console.log('Loading joined entries for:', entry.id, 'joins:', entry.metadata.joins);
+
     if (entry.metadata.joins.length === 0) {
+      console.log('No joins found, setting empty array');
       setJoinedEntries([]);
       return;
     }
@@ -46,30 +55,43 @@ export default function JoinView() {
       });
 
       const results = await Promise.all(joinedPromises);
-      setJoinedEntries(results.filter(Boolean));
+      const filteredResults = results.filter(Boolean);
+      console.log('Loaded joined entries:', filteredResults.length);
+      setJoinedEntries(filteredResults);
     } catch (error) {
       console.error('Error loading joined entries:', error);
     }
   };
 
   const handleSearch = async (query: string) => {
+    console.log('handleSearch called with query:', query);
     if (!query.trim()) {
+      console.log('Empty query, clearing results');
       setSearchResults([]);
       return;
     }
 
     setLoading(true);
     try {
+      console.log('Sending search request...');
       const response = await fetch('/api/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query, limit: 20 })
       });
 
+      console.log('Search response status:', response.status);
       if (response.ok) {
         const { results } = await response.json();
+        console.log('Search results received:', results.length);
         setSearchResults(results);
         setSelectedResultIndex(0);
+        // Initialize result refs array
+        resultRefs.current = new Array(results.length).fill(null);
+      } else {
+        console.error('Search failed with status:', response.status);
+        const errorText = await response.text();
+        console.error('Error response:', errorText);
       }
     } catch (error) {
       console.error('Error searching:', error);
@@ -78,15 +100,49 @@ export default function JoinView() {
     }
   };
 
+  const scrollToResult = useCallback((index: number) => {
+    const element = resultRefs.current[index];
+    if (element) {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      });
+    }
+  }, []);
+
   const handleKeyDown = useCallback(async (event: KeyboardEvent) => {
+    // If search input is focused, only handle Enter and slash keys
+    if (event.target === searchInputRef.current) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        await handleSearch(searchQuery);
+        // Blur the input so arrow keys work for navigation
+        searchInputRef.current?.blur();
+      }
+      // Let all other keys pass through normally when input is focused
+      return;
+    }
+
     switch (event.key) {
       case 'ArrowUp':
-        event.preventDefault();
-        setSelectedResultIndex(prev => Math.max(0, prev - 1));
+        if (searchResults.length > 0) {
+          event.preventDefault();
+          setSelectedResultIndex(prev => {
+            const newIndex = Math.max(0, prev - 1);
+            scrollToResult(newIndex);
+            return newIndex;
+          });
+        }
         break;
       case 'ArrowDown':
-        event.preventDefault();
-        setSelectedResultIndex(prev => Math.min(searchResults.length - 1, prev + 1));
+        if (searchResults.length > 0) {
+          event.preventDefault();
+          setSelectedResultIndex(prev => {
+            const newIndex = Math.min(searchResults.length - 1, prev + 1);
+            scrollToResult(newIndex);
+            return newIndex;
+          });
+        }
         break;
       case 'j':
       case 'J':
@@ -97,9 +153,15 @@ export default function JoinView() {
       case 'R':
         event.preventDefault();
         await loadRandomHighlight();
+        searchInputRef.current?.focus();
+        break;
+      case '/':
+        // Focus search input when "/" is pressed (like vim)
+        event.preventDefault();
+        searchInputRef.current?.focus();
         break;
     }
-  }, [searchResults, selectedResultIndex]);
+  }, [searchResults, selectedResultIndex, searchQuery, scrollToResult]);
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
@@ -112,6 +174,8 @@ export default function JoinView() {
     const selectedResult = searchResults[selectedResultIndex];
     if (!selectedResult) return;
 
+    console.log('Attempting to join:', currentEntry.id, 'with', selectedResult.entry.id);
+
     try {
       const response = await fetch('/api/join', {
         method: 'POST',
@@ -121,6 +185,10 @@ export default function JoinView() {
           id2: selectedResult.entry.id
         })
       });
+
+      console.log('Join response status:', response.status);
+      const data = await response.json();
+      console.log('Join response data:', data);
 
       if (response.ok) {
         // Update the current entry's joins
@@ -132,11 +200,21 @@ export default function JoinView() {
           }
         };
         setCurrentEntry(updatedEntry);
-        setJoinedEntries(prev => [...prev, selectedResult.entry]);
 
-        // Clear search
-        setSearchQuery('');
-        setSearchResults([]);
+        // Add the newly joined entry to the joined entries list
+        setJoinedEntries(prev => {
+          console.log('Previous joined entries:', prev);
+          const newJoined = [...prev, selectedResult.entry];
+          console.log('New joined entries:', newJoined);
+          return newJoined;
+        });
+
+        // Don't clear search results, just keep the current state
+        // User can manually clear or search again if needed
+        console.log('Successfully joined entry:', selectedResult.entry.id);
+        console.log('Updated joinedEntries state');
+      } else {
+        console.error('Join failed:', data);
       }
     } catch (error) {
       console.error('Error joining entries:', error);
@@ -171,13 +249,11 @@ export default function JoinView() {
       {/* Search Bar */}
       <div className="mb-8">
         <input
+          ref={searchInputRef}
           type="text"
           value={searchQuery}
-          onChange={(e) => {
-            setSearchQuery(e.target.value);
-            handleSearch(e.target.value);
-          }}
-          placeholder="Search for highlights to join..."
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search for highlights to join (press Enter to search)..."
           className="w-full p-4 text-lg border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800"
         />
       </div>
@@ -191,6 +267,7 @@ export default function JoinView() {
           {searchResults.map((result, index) => (
             <div
               key={result.entry.id}
+              ref={el => resultRefs.current[index] = el}
               className={`
                 border rounded-lg p-4 cursor-pointer transition-colors
                 ${index === selectedResultIndex
@@ -221,6 +298,7 @@ export default function JoinView() {
       )}
 
       {/* Joined Highlights */}
+      {console.log('Rendering, joinedEntries.length:', joinedEntries.length)}
       {joinedEntries.length > 0 && (
         <div className="border-t pt-8">
           <button
@@ -256,6 +334,8 @@ export default function JoinView() {
 
       {/* Controls */}
       <div className="fixed bottom-4 right-4 bg-white dark:bg-gray-800 p-4 rounded shadow-lg text-sm">
+        <div>/: Focus search</div>
+        <div>Enter: Search</div>
         <div>↑↓: Navigate results</div>
         <div>J: Join selected highlight</div>
         <div>R: New random highlight</div>

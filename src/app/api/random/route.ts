@@ -1,29 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
-import pool from '@/lib/db';
-import { Entry } from '@/lib/types';
+import { db, entries } from '@/lib/db';
+import { sql } from 'drizzle-orm';
 
 export async function GET() {
   try {
-    const client = await pool.connect();
+    const [randomEntry] = await db.select()
+      .from(entries)
+      .orderBy(sql`RANDOM()`)
+      .limit(1);
 
-    try {
-      const result = await client.query(
-        'SELECT * FROM entries ORDER BY RANDOM() LIMIT 1'
-      );
-
-      if (result.rows.length === 0) {
-        return NextResponse.json({ error: 'No entries found' }, { status: 404 });
-      }
-
-      const entry: Entry = {
-        ...result.rows[0],
-        metadata: JSON.parse(result.rows[0].metadata)
-      };
-
-      return NextResponse.json({ entry });
-    } finally {
-      client.release();
+    if (!randomEntry) {
+      return NextResponse.json({ error: 'No entries found' }, { status: 404 });
     }
+
+    const entry = {
+      id: randomEntry.id,
+      data: randomEntry.data,
+      metadata: randomEntry.metadata,
+      created_at: randomEntry.createdAt,
+      updated_at: randomEntry.updatedAt,
+    };
+
+    return NextResponse.json({ entry });
   } catch (error) {
     console.error('Error getting random entry:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

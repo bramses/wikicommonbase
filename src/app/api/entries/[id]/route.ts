@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import pool from '@/lib/db';
-import { Entry } from '@/lib/types';
+import { db, entries } from '@/lib/db';
+import { eq } from 'drizzle-orm';
 
 export async function GET(
   _request: NextRequest,
@@ -9,27 +9,23 @@ export async function GET(
   try {
     const { id } = params;
 
-    const client = await pool.connect();
+    const [entry] = await db.select()
+      .from(entries)
+      .where(eq(entries.id, id));
 
-    try {
-      const result = await client.query(
-        'SELECT * FROM entries WHERE id = $1',
-        [id]
-      );
-
-      if (result.rows.length === 0) {
-        return NextResponse.json({ error: 'Entry not found' }, { status: 404 });
-      }
-
-      const entry: Entry = {
-        ...result.rows[0],
-        metadata: JSON.parse(result.rows[0].metadata)
-      };
-
-      return NextResponse.json({ entry });
-    } finally {
-      client.release();
+    if (!entry) {
+      return NextResponse.json({ error: 'Entry not found' }, { status: 404 });
     }
+
+    return NextResponse.json({
+      entry: {
+        id: entry.id,
+        data: entry.data,
+        metadata: entry.metadata,
+        created_at: entry.createdAt,
+        updated_at: entry.updatedAt,
+      }
+    });
   } catch (error) {
     console.error('Error fetching entry:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
