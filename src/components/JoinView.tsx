@@ -13,6 +13,8 @@ export default function JoinView() {
   const [joinedEntries, setJoinedEntries] = useState<Entry[]>([]);
   const [showJoinedList, setShowJoinedList] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [joinedIds, setJoinedIds] = useState<Set<string>>(new Set());
+  const [animatingJoinId, setAnimatingJoinId] = useState<string | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const resultRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -265,6 +267,15 @@ export default function JoinView() {
           return newJoined;
         });
 
+        // Add to permanently joined set and trigger animation
+        setJoinedIds(prev => new Set([...prev, selectedResult.entry.id]));
+        setAnimatingJoinId(selectedResult.entry.id);
+
+        // Clear the animation after it completes, but keep the green styling
+        setTimeout(() => {
+          setAnimatingJoinId(null);
+        }, 500);
+
         // Don't clear search results, just keep the current state
         // User can manually clear or search again if needed
         console.log('Successfully joined entry:', selectedResult.entry.id);
@@ -405,32 +416,44 @@ export default function JoinView() {
           >
             Search Results:
           </h3>
-          {searchResults.map((result, index) => (
+          {searchResults.map((result, index) => {
+            const isSelected = index === selectedResultIndex;
+            const isJoined = joinedIds.has(result.entry.id);
+            const isAnimating = animatingJoinId === result.entry.id;
+
+            return (
             <div
               key={result.entry.id}
-              ref={el => resultRefs.current[index] = el}
+              ref={el => { resultRefs.current[index] = el; }}
               className="card cursor-pointer transition-all"
               style={{
-                background: index === selectedResultIndex
-                  ? 'var(--accent-soft)'
-                  : 'var(--surface-elevated)',
+                background: isJoined
+                  ? 'var(--success-soft)'
+                  : isSelected
+                    ? 'var(--accent-soft)'
+                    : 'var(--surface-elevated)',
                 border: '1px solid',
-                borderColor: index === selectedResultIndex
-                  ? 'var(--accent)'
-                  : 'var(--border-subtle)',
+                borderColor: isJoined
+                  ? 'var(--success)'
+                  : isSelected
+                    ? 'var(--accent)'
+                    : 'var(--border-subtle)',
                 borderRadius: 'var(--radius-lg)',
                 padding: 'var(--space-xl)',
-                marginBottom: 'var(--space-lg)'
+                marginBottom: 'var(--space-lg)',
+                boxShadow: isJoined ? '0 0 0 3px var(--success-soft)' : undefined,
+                transform: isJoined ? 'scale(1.02)' : undefined,
+                animation: isAnimating ? 'pulse 0.5s ease-in-out' : undefined
               }}
               onClick={() => setSelectedResultIndex(index)}
               onMouseEnter={(e) => {
-                if (index !== selectedResultIndex) {
+                if (index !== selectedResultIndex && !isJoined) {
                   e.currentTarget.style.borderColor = 'var(--border)';
                   e.currentTarget.style.background = 'var(--background)';
                 }
               }}
               onMouseLeave={(e) => {
-                if (index !== selectedResultIndex) {
+                if (index !== selectedResultIndex && !isJoined) {
                   e.currentTarget.style.borderColor = 'var(--border-subtle)';
                   e.currentTarget.style.background = 'var(--surface-elevated)';
                 }
@@ -475,7 +498,8 @@ export default function JoinView() {
                 />
               )}
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
