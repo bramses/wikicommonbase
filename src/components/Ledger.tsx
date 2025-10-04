@@ -7,7 +7,7 @@ export default function Ledger() {
   const [entries, setEntries] = useState<Entry[]>([]);
   const [grouped, setGrouped] = useState<Record<string, Entry[]>>({});
   const [loading, setLoading] = useState(true);
-  const [groupByArticleSection, setGroupByArticleSection] = useState(false);
+  const [groupByArticleSection, setGroupByArticleSection] = useState(true);
   const [joinedEntriesCache, setJoinedEntriesCache] = useState<Record<string, Entry[]>>({});
   const entryRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
@@ -106,26 +106,66 @@ export default function Ledger() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Highlight Ledger</h1>
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={groupByArticleSection}
-            onChange={(e) => setGroupByArticleSection(e.target.checked)}
-            className="w-4 h-4"
-          />
-          Group by Article - Section
-        </label>
-      </div>
+    <div className="page-container animate-fade-in">
+      <div className="wide-content space-y-generous">
+        <div className="flex justify-between items-center" style={{ marginBottom: 'var(--space-2xl)' }}>
+          <h1
+            style={{
+              fontSize: 'var(--text-3xl)',
+              fontWeight: '700',
+              color: 'var(--foreground)',
+              letterSpacing: '-0.02em'
+            }}
+          >
+            Highlight Ledger
+          </h1>
+          <label
+            className="flex items-center"
+            style={{
+              gap: 'var(--space-sm)',
+              fontSize: 'var(--text-sm)',
+              color: 'var(--foreground-secondary)',
+              fontFamily: 'Inter, sans-serif'
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={groupByArticleSection}
+              onChange={(e) => setGroupByArticleSection(e.target.checked)}
+              style={{
+                width: '1rem',
+                height: '1rem',
+                accentColor: 'var(--accent)'
+              }}
+            />
+            Group by Article - Section
+          </label>
+        </div>
 
       {groupByArticleSection ? (
-        <div className="space-y-8">
+        <div className="space-y-generous">
           {Object.entries(grouped).map(([key, groupEntries]) => (
-            <div key={key} className="border rounded-lg p-6">
-              <h2 className="text-xl font-semibold mb-4">{key}</h2>
-              <div className="space-y-4">
+            <div
+              key={key}
+              className="card"
+              style={{
+                background: 'var(--surface-elevated)',
+                border: '1px solid var(--border-subtle)',
+                borderRadius: 'var(--radius-lg)',
+                padding: 'var(--space-2xl)'
+              }}
+            >
+              <h2
+                style={{
+                  fontSize: 'var(--text-xl)',
+                  fontWeight: '600',
+                  color: 'var(--foreground)',
+                  marginBottom: 'var(--space-xl)'
+                }}
+              >
+                {key}
+              </h2>
+              <div className="space-y-comfortable">
                 {groupEntries.map((entry) => (
                   <EntryCard
                     key={entry.id}
@@ -141,7 +181,7 @@ export default function Ledger() {
           ))}
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-comfortable">
           {entries.map((entry) => (
             <EntryCard
               key={entry.id}
@@ -154,6 +194,7 @@ export default function Ledger() {
           ))}
         </div>
       )}
+      </div>
     </div>
   );
 }
@@ -179,34 +220,90 @@ const EntryCard = forwardRef<HTMLDivElement, EntryCardProps>(
     };
 
     return (
-      <div ref={ref} className="border rounded-lg p-4 hover:shadow-md transition-all">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div
+        ref={ref}
+        className="card transition-all"
+        style={{
+          background: 'var(--surface-elevated)',
+          border: '1px solid var(--border-subtle)',
+          borderRadius: 'var(--radius-lg)',
+          padding: 'var(--space-xl)',
+          boxShadow: 'var(--shadow-sm)'
+        }}
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-3" style={{ gap: 'var(--space-lg)' }}>
           <div className="lg:col-span-2">
-            <p className="text-gray-800 dark:text-gray-200 mb-2">{entry.data}</p>
+            <p
+              className="text-reading"
+              style={{
+                fontSize: 'var(--text-base)',
+                lineHeight: 'var(--leading-relaxed)',
+                color: 'var(--foreground)',
+                marginBottom: 'var(--space-md)'
+              }}
+            >
+              {entry.data}
+            </p>
             {entry.metadata.img_url && (
               <img
                 src={entry.metadata.img_url}
                 alt="Entry image"
-                className="max-w-xs rounded-lg mb-2"
+                style={{
+                  maxWidth: '20rem',
+                  borderRadius: 'var(--radius-md)',
+                  marginBottom: 'var(--space-md)'
+                }}
               />
             )}
           </div>
-          <div className="text-sm text-gray-600 dark:text-gray-400 space-y-2">
-            <div>
+          <div
+            style={{
+              fontSize: 'var(--text-sm)',
+              color: 'var(--foreground-secondary)',
+              fontFamily: 'Inter, sans-serif',
+              minWidth: 0,
+              maxWidth: '100%',
+              overflow: 'hidden'
+            }}
+            className="space-y-comfortable"
+          >
+            <div style={{ minWidth: 0, maxWidth: '100%' }}>
               <button
                 onClick={() => onOpen(entry)}
-                className="text-blue-600 hover:underline"
+                style={{
+                  color: 'var(--accent)',
+                  fontSize: 'var(--text-sm)',
+                  fontWeight: '500',
+                  transition: 'all 0.2s ease',
+                  textAlign: 'left',
+                  wordBreak: 'break-word',
+                  overflowWrap: 'break-word',
+                  hyphens: 'auto',
+                  width: '100%',
+                  maxWidth: '100%',
+                  minWidth: 0,
+                  whiteSpace: 'normal'
+                }}
+                className="hover:underline"
               >
                 {entry.metadata.article}
                 {entry.metadata.section && ` > ${entry.metadata.section}`}
               </button>
             </div>
-            <div>Added: {new Date(entry.created_at).toLocaleString()}</div>
+            <div style={{ color: 'var(--foreground-muted)' }}>
+              Added: {new Date(entry.created_at).toLocaleString()}
+            </div>
             {entry.metadata.joins.length > 0 && (
               <div>
                 <button
                   onClick={loadJoinedEntries}
-                  className="text-green-600 hover:underline cursor-pointer"
+                  style={{
+                    color: 'var(--success)',
+                    fontSize: 'var(--text-sm)',
+                    fontWeight: '500',
+                    transition: 'all 0.2s ease'
+                  }}
+                  className="hover:underline cursor-pointer"
                 >
                   {showJoinedDetails ? '▼' : '▶'} Joined to: {entry.metadata.joins.length} highlight{entry.metadata.joins.length !== 1 ? 's' : ''}
                 </button>
@@ -216,17 +313,64 @@ const EntryCard = forwardRef<HTMLDivElement, EntryCardProps>(
         </div>
 
         {showJoinedDetails && joinedEntries.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-            <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">Connected highlights:</div>
-            <div className="space-y-2">
+          <div
+            style={{
+              marginTop: 'var(--space-lg)',
+              paddingTop: 'var(--space-lg)',
+              borderTop: '1px solid var(--border-subtle)'
+            }}
+          >
+            <div
+              style={{
+                fontSize: 'var(--text-sm)',
+                color: 'var(--foreground-secondary)',
+                marginBottom: 'var(--space-md)',
+                fontWeight: '500'
+              }}
+            >
+              Connected highlights:
+            </div>
+            <div className="space-y-comfortable">
               {joinedEntries.map((joinedEntry) => (
                 <button
                   key={joinedEntry.id}
                   onClick={() => onScrollToEntry(joinedEntry.id)}
-                  className="block w-full text-left p-2 bg-gray-50 dark:bg-gray-800 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  style={{
+                    display: 'block',
+                    width: '100%',
+                    textAlign: 'left',
+                    padding: 'var(--space-md)',
+                    background: 'var(--surface)',
+                    border: '1px solid var(--border-subtle)',
+                    borderRadius: 'var(--radius-md)',
+                    transition: 'all 0.2s ease'
+                  }}
+                  className="hover:shadow-sm"
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'var(--surface-elevated)';
+                    e.currentTarget.style.borderColor = 'var(--border)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'var(--surface)';
+                    e.currentTarget.style.borderColor = 'var(--border-subtle)';
+                  }}
                 >
-                  <div className="text-sm truncate mb-1">{joinedEntry.data}</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                  <div
+                    style={{
+                      fontSize: 'var(--text-sm)',
+                      color: 'var(--foreground)',
+                      marginBottom: 'var(--space-xs)'
+                    }}
+                    className="truncate"
+                  >
+                    {joinedEntry.data}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 'var(--text-xs)',
+                      color: 'var(--foreground-muted)'
+                    }}
+                  >
                     {joinedEntry.metadata.article}
                     {joinedEntry.metadata.section && ` > ${joinedEntry.metadata.section}`}
                   </div>

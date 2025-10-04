@@ -2,13 +2,37 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="max-w-4xl mx-auto px-4 py-16">
-        <div className="text-center mb-16">
-          <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-6">
+    <div
+      className="min-h-screen animate-fade-in"
+      style={{
+        background: 'linear-gradient(135deg, var(--background) 0%, var(--surface) 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}
+    >
+      <div className="page-content space-y-generous">
+        <div className="space-y-comfortable">
+          <h1
+            style={{
+              fontSize: 'clamp(2.5rem, 5vw, 4rem)',
+              fontWeight: '700',
+              color: 'var(--foreground)',
+              letterSpacing: '-0.03em',
+              marginBottom: 'var(--space-xl)'
+            }}
+          >
             WikiGame
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
+          <p
+            style={{
+              fontSize: 'var(--text-xl)',
+              color: 'var(--foreground-secondary)',
+              lineHeight: 'var(--leading-relaxed)',
+              maxWidth: '600px',
+              margin: '0 auto var(--space-2xl)'
+            }}
+          >
             A distraction-free Wikipedia reading experience with highlighting and connection features
           </p>
         </div>

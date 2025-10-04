@@ -332,24 +332,51 @@ export default function DistractionFreeReader({ content, initialHighlight }: Dis
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-8 font-serif leading-relaxed">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2 text-center">{content.title}</h1>
-        <div className="text-center text-sm text-gray-600 dark:text-gray-400">
-          {sentences.length} sentences • {paragraphs.length} paragraphs • {(content.fullContent || content.extract).length} characters
-        </div>
-        {content.image && (
-          <div className="flex justify-center mt-4">
-            <img
-              src={content.image.source}
-              alt={content.title}
-              className="max-w-md max-h-64 object-contain rounded shadow-lg"
-            />
+    <div className="page-container text-reading animate-fade-in">
+      <div className="page-content space-y-generous">
+        <div className="space-y-comfortable">
+          <h1
+            style={{
+              fontSize: 'var(--text-3xl)',
+              fontWeight: '700',
+              color: 'var(--foreground)',
+              lineHeight: 'var(--leading-tight)',
+              letterSpacing: '-0.03em',
+              marginBottom: 'var(--space-lg)'
+            }}
+          >
+            {content.title}
+          </h1>
+          <div
+            style={{
+              fontSize: 'var(--text-sm)',
+              color: 'var(--foreground-muted)',
+              fontFamily: 'Inter, sans-serif',
+              marginBottom: 'var(--space-lg)'
+            }}
+          >
+            {sentences.length} sentences • {paragraphs.length} paragraphs • {(content.fullContent || content.extract).length} characters
           </div>
-        )}
-      </div>
+          {content.image && (
+            <div style={{ marginBottom: 'var(--space-xl)' }}>
+              <img
+                src={content.image.source}
+                alt={content.title}
+                style={{
+                  maxWidth: '28rem',
+                  maxHeight: '16rem',
+                  objectFit: 'contain',
+                  borderRadius: 'var(--radius-lg)',
+                  boxShadow: 'var(--shadow-md)',
+                  margin: '0 auto',
+                  display: 'block'
+                }}
+              />
+            </div>
+          )}
+        </div>
 
-      <div className="prose prose-lg dark:prose-invert max-w-none space-y-4">
+        <div className="reading-width space-y-comfortable">
         {paragraphs.map((paragraph, paragraphIndex) => {
           if (paragraph.isHeading) {
             const level = paragraph.headingLevel || 2;
@@ -387,11 +414,27 @@ export default function DistractionFreeReader({ content, initialHighlight }: Dis
                   <span
                     key={sentence.index}
                     ref={el => sentenceRefs.current[globalSentenceIndex] = el}
-                    className={`
-                      ${isCurrentSentence ? 'bg-blue-200 dark:bg-blue-800 border-2 border-blue-500 rounded px-2 py-1 font-semibold' : ''}
-                      ${isHighlighted ? 'bg-yellow-200 dark:bg-yellow-800 border border-yellow-500 rounded px-1' : ''}
-                      ${isCurrentSentence && isHighlighted ? 'bg-green-200 dark:bg-green-800 border-2 border-green-500' : ''}
-                    `}
+                    style={{
+                      backgroundColor: isCurrentSentence && isHighlighted
+                        ? 'var(--success-soft)'
+                        : isCurrentSentence
+                        ? 'var(--accent-soft)'
+                        : isHighlighted
+                        ? 'var(--warning-soft)'
+                        : 'transparent',
+                      border: isCurrentSentence || isHighlighted ? '1px solid' : 'none',
+                      borderColor: isCurrentSentence && isHighlighted
+                        ? 'var(--success)'
+                        : isCurrentSentence
+                        ? 'var(--accent)'
+                        : isHighlighted
+                        ? 'var(--warning)'
+                        : 'transparent',
+                      borderRadius: 'var(--radius-sm)',
+                      padding: isCurrentSentence || isHighlighted ? 'var(--space-xs) var(--space-sm)' : '0',
+                      fontWeight: isCurrentSentence ? '500' : '400',
+                      transition: 'all 0.2s ease'
+                    }}
                   >
                     {sentence.text}
                     {sentenceIndex < paragraphSentences.length - 1 && ' '}
@@ -401,25 +444,49 @@ export default function DistractionFreeReader({ content, initialHighlight }: Dis
             </div>
           );
         })}
+        </div>
       </div>
 
-      <div className="fixed bottom-4 right-4 bg-white dark:bg-gray-800 p-4 rounded shadow-lg text-sm">
-        <div>↑↓: Navigate sentences ({currentSentenceIndex + 1}/{sentences.length})</div>
-        <div>S: Highlight current sentence</div>
-        <div>P: Highlight full paragraph</div>
-        <div>R: Random article</div>
-        {sentences[currentSentenceIndex] && (
-          <div className="mt-2 text-xs text-gray-500">
-            Current: Sentence {currentSentenceIndex + 1}
-            {(() => {
-              const currentSentence = sentences[currentSentenceIndex];
-              const paragraph = paragraphs.find(p => p.index === currentSentence.paragraphIndex);
-              return paragraph?.sectionTitle && (
-                <div>Section: {paragraph.sectionTitle}</div>
-              );
-            })()}
+      <div
+        className="helper-box card"
+        style={{
+          fontSize: 'var(--text-sm)',
+          fontFamily: 'Inter, sans-serif',
+          background: 'var(--surface-elevated)',
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--radius-lg)',
+          padding: 'var(--space-lg)',
+          boxShadow: 'var(--shadow-lg)',
+          backdropFilter: 'blur(8px)'
+        }}
+      >
+        <div className="space-y-1" style={{ color: 'var(--foreground-secondary)' }}>
+          <div style={{ color: 'var(--foreground)', fontWeight: '500' }}>
+            ↑↓: Navigate sentences ({currentSentenceIndex + 1}/{sentences.length})
           </div>
-        )}
+          <div>S: Highlight current sentence</div>
+          <div>P: Highlight full paragraph</div>
+          <div>R: Random article</div>
+          {sentences[currentSentenceIndex] && (
+            <div
+              className="mt-3 pt-2"
+              style={{
+                borderTop: '1px solid var(--border-subtle)',
+                fontSize: 'var(--text-xs)',
+                color: 'var(--foreground-muted)'
+              }}
+            >
+              Current: Sentence {currentSentenceIndex + 1}
+              {(() => {
+                const currentSentence = sentences[currentSentenceIndex];
+                const paragraph = paragraphs.find(p => p.index === currentSentence.paragraphIndex);
+                return paragraph?.sectionTitle && (
+                  <div>Section: {paragraph.sectionTitle}</div>
+                );
+              })()}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

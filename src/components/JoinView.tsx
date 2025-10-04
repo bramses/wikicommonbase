@@ -63,6 +63,15 @@ export default function JoinView() {
     }
   };
 
+  const openInReader = (entry: Entry) => {
+    const params = new URLSearchParams({
+      article: entry.metadata.article,
+      highlight: entry.data,
+      scrollToHighlight: 'true'
+    });
+    window.open(`/reader?${params.toString()}`, '_blank');
+  };
+
   const handleSearch = async (query: string) => {
     console.log('handleSearch called with query:', query);
     if (!query.trim()) {
@@ -159,11 +168,23 @@ export default function JoinView() {
       case 'r':
       case 'R':
         event.preventDefault();
+        setSearchQuery('');
+        setSearchResults([]);
         await loadRandomHighlight();
         searchInputRef.current?.focus();
         break;
+      case 'o':
+      case 'O':
+        if (searchResults.length > 0) {
+          event.preventDefault();
+          const selectedResult = searchResults[selectedResultIndex];
+          if (selectedResult) {
+            openInReader(selectedResult.entry);
+          }
+        }
+        break;
     }
-  }, [searchResults, selectedResultIndex, searchQuery, scrollToResult]);
+  }, [searchResults, selectedResultIndex, searchQuery, scrollToResult, openInReader]);
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
@@ -228,13 +249,39 @@ export default function JoinView() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-8 text-center">Join Highlights</h1>
+    <div className="page-container animate-fade-in">
+      <div className="page-content space-y-generous">
+        <h1
+          style={{
+            fontSize: 'var(--text-3xl)',
+            fontWeight: '700',
+            color: 'var(--foreground)',
+            marginBottom: 'var(--space-2xl)',
+            letterSpacing: '-0.02em'
+          }}
+        >
+          Join Highlights
+        </h1>
 
       {/* Current Highlight */}
-      <div className="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-800 rounded-lg p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4">Current Highlight</h2>
-        <p className="text-lg mb-4">{currentEntry.data}</p>
+      <div
+        className="card mb-8"
+        style={{
+          padding: 'var(--space-xl)'
+        }}
+      >
+        
+        <p
+          className="text-reading"
+          style={{
+            fontSize: 'var(--text-lg)',
+            lineHeight: 'var(--leading-relaxed)',
+            marginBottom: 'var(--space-lg)',
+            color: 'var(--foreground)'
+          }}
+        >
+          {currentEntry.data}
+        </p>
         {currentEntry.metadata.img_url && (
           <img
             src={currentEntry.metadata.img_url}
@@ -249,14 +296,34 @@ export default function JoinView() {
       </div>
 
       {/* Search Bar */}
-      <div className="mb-8">
+      <div style={{ marginBottom: 'var(--space-2xl)' }}>
         <input
           ref={searchInputRef}
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search for highlights to join (press Enter to search)..."
-          className="w-full p-4 text-lg border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800"
+          style={{
+            width: '100%',
+            padding: 'var(--space-lg)',
+            fontSize: 'var(--text-lg)',
+            background: 'var(--surface-elevated)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius-md)',
+            color: 'var(--foreground)',
+            transition: 'all 0.2s ease',
+            fontFamily: 'Inter, sans-serif'
+          }}
+          onFocus={(e) => {
+            e.target.style.borderColor = 'var(--accent)';
+            e.target.style.background = 'var(--background)';
+            e.target.style.boxShadow = '0 0 0 3px var(--accent-soft)';
+          }}
+          onBlur={(e) => {
+            e.target.style.borderColor = 'var(--border)';
+            e.target.style.background = 'var(--surface-elevated)';
+            e.target.style.boxShadow = 'none';
+          }}
         />
       </div>
 
@@ -264,34 +331,84 @@ export default function JoinView() {
       {loading && <div className="text-center mb-8">Searching...</div>}
 
       {searchResults.length > 0 && (
-        <div className="space-y-4 mb-8">
-          <h3 className="text-lg font-semibold">Search Results:</h3>
+        <div className="space-y-6 mb-12">
+          <h3
+            style={{
+              fontSize: 'var(--text-xl)',
+              fontWeight: '600',
+              color: 'var(--foreground)',
+              marginBottom: 'var(--space-lg)'
+            }}
+          >
+            Search Results:
+          </h3>
           {searchResults.map((result, index) => (
             <div
               key={result.entry.id}
               ref={el => resultRefs.current[index] = el}
-              className={`
-                border rounded-lg p-4 cursor-pointer transition-colors
-                ${index === selectedResultIndex
-                  ? 'bg-yellow-100 dark:bg-yellow-900 border-yellow-300 dark:border-yellow-700'
-                  : 'hover:bg-gray-50 dark:hover:bg-gray-800'
-                }
-              `}
+              className="card cursor-pointer transition-all"
+              style={{
+                background: index === selectedResultIndex
+                  ? 'var(--accent-soft)'
+                  : 'var(--surface-elevated)',
+                border: '1px solid',
+                borderColor: index === selectedResultIndex
+                  ? 'var(--accent)'
+                  : 'var(--border-subtle)',
+                borderRadius: 'var(--radius-lg)',
+                padding: 'var(--space-xl)',
+                marginBottom: 'var(--space-lg)'
+              }}
               onClick={() => setSelectedResultIndex(index)}
+              onMouseEnter={(e) => {
+                if (index !== selectedResultIndex) {
+                  e.currentTarget.style.borderColor = 'var(--border)';
+                  e.currentTarget.style.background = 'var(--background)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (index !== selectedResultIndex) {
+                  e.currentTarget.style.borderColor = 'var(--border-subtle)';
+                  e.currentTarget.style.background = 'var(--surface-elevated)';
+                }
+              }}
             >
-              <p className="mb-2">{result.entry.data}</p>
-              <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
+              <p
+                className="text-reading"
+                style={{
+                  fontSize: 'var(--text-base)',
+                  lineHeight: 'var(--leading-relaxed)',
+                  color: 'var(--foreground)',
+                  marginBottom: 'var(--space-md)'
+                }}
+              >
+                {result.entry.data}
+              </p>
+              <div
+                className="flex justify-between"
+                style={{
+                  fontSize: 'var(--text-sm)',
+                  color: 'var(--foreground-secondary)',
+                  fontFamily: 'Inter, sans-serif'
+                }}
+              >
                 <span>
                   {result.entry.metadata.article}
                   {result.entry.metadata.section && ` > ${result.entry.metadata.section}`}
                 </span>
-                <span>Similarity: {(result.similarity * 100).toFixed(1)}%</span>
+                <span style={{ color: 'var(--accent)' }}>
+                  Similarity: {(result.similarity * 100).toFixed(1)}%
+                </span>
               </div>
               {result.entry.metadata.img_url && (
                 <img
                   src={result.entry.metadata.img_url}
                   alt="Result image"
-                  className="max-w-xs rounded-lg mt-2"
+                  style={{
+                    maxWidth: '20rem',
+                    borderRadius: 'var(--radius-md)',
+                    marginTop: 'var(--space-md)'
+                  }}
                 />
               )}
             </div>
@@ -300,47 +417,114 @@ export default function JoinView() {
       )}
 
       {/* Joined Highlights */}
-      {console.log('Rendering, joinedEntries.length:', joinedEntries.length)}
       {joinedEntries.length > 0 && (
-        <div className="border-t pt-8">
+        <section className="mt-12">
           <button
             onClick={() => setShowJoinedList(!showJoinedList)}
-            className="flex items-center gap-2 text-lg font-semibold mb-4 hover:text-blue-600"
+            className="flex items-center gap-2 text-base font-semibold hover:text-blue-600"
           >
             <span>{showJoinedList ? '▼' : '▶'}</span>
             Currently Joined Highlights ({joinedEntries.length})
           </button>
 
           {showJoinedList && (
-            <div className="space-y-4">
-              {joinedEntries.map((entry) => (
-                <div key={entry.id} className="border rounded-lg p-4 bg-green-50 dark:bg-green-900">
-                  <p className="mb-2">{entry.data}</p>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
-                    {entry.metadata.article}
-                    {entry.metadata.section && ` > ${entry.metadata.section}`}
-                  </div>
-                  {entry.metadata.img_url && (
-                    <img
-                      src={entry.metadata.img_url}
-                      alt="Joined highlight image"
-                      className="max-w-xs rounded-lg mt-2"
-                    />
-                  )}
-                </div>
-              ))}
+            <div
+              className="card mt-3 overflow-hidden"
+              style={{
+                border: '1px solid var(--border-subtle)',
+                borderRadius: 'var(--radius-lg)',
+                maxHeight: '40vh',
+                overflowY: 'auto',
+                background: 'var(--surface-elevated)',
+              }}
+            >
+              <ul className="divide-y" style={{ borderColor: 'var(--border-subtle)' }}>
+                {joinedEntries.map((entry) => (
+                  <li
+                    key={entry.id}
+                    className="hover:bg-[color:var(--background)] transition-colors"
+                    style={{ padding: '0.75rem 1rem' }}
+                  >
+                    <p
+                      className="text-reading"
+                      style={{
+                        fontSize: 'var(--text-sm)',
+                        lineHeight: 'var(--leading-snug)',
+                        color: 'var(--foreground)',
+                        marginBottom: '0.35rem',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                      }}
+                      title={entry.data}
+                    >
+                      {entry.data}
+                    </p>
+
+                    <div
+                      className="flex items-center justify-between"
+                      style={{
+                        fontSize: 'var(--text-xs)',
+                        color: 'var(--foreground-secondary)',
+                      }}
+                    >
+                      <span>
+                        {entry.metadata.article}
+                        {entry.metadata.section && ` > ${entry.metadata.section}`}
+                      </span>
+
+                      <button
+                        onClick={() => openInReader(entry)}
+                        className="underline-offset-2 hover:underline"
+                        style={{ color: 'var(--accent)' }}
+                      >
+                        open
+                      </button>
+                    </div>
+
+                    {entry.metadata.img_url && (
+                      <img
+                        src={entry.metadata.img_url}
+                        alt=""
+                        className="mt-2 rounded"
+                        style={{ maxWidth: '12rem' }}
+                      />
+                    )}
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
-        </div>
+        </section>
       )}
 
       {/* Controls */}
-      <div className="fixed bottom-4 right-4 bg-white dark:bg-gray-800 p-4 rounded shadow-lg text-sm">
-        <div>/: Focus search</div>
-        <div>Enter: Search</div>
-        <div>↑↓: Navigate results</div>
-        <div>J: Join selected highlight</div>
-        <div>R: New random highlight</div>
+      <div
+        className="card fixed bottom-4 right-4 z-50"
+        style={{
+          background: 'var(--surface-elevated)',
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--radius-lg)',
+          padding: 'var(--space-lg)',
+          boxShadow: 'var(--shadow-lg)',
+          backdropFilter: 'blur(8px)',
+          fontSize: 'var(--text-sm)',
+          fontFamily: 'Inter, sans-serif'
+        }}
+      >
+        <div className="space-y-1" style={{ color: 'var(--foreground-secondary)' }}>
+          <div style={{ color: 'var(--foreground)', fontWeight: '500', marginBottom: 'var(--space-sm)' }}>
+            Keyboard Shortcuts
+          </div>
+          <div>/: Focus search</div>
+          <div>Enter: Search</div>
+          <div>↑↓: Navigate results</div>
+          <div>J: Join selected highlight</div>
+          <div>O: Open selected in reader</div>
+          <div>R: New random highlight</div>
+        </div>
+      </div>
       </div>
     </div>
   );

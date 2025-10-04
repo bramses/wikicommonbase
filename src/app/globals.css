@@ -1,8 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
 @import "tailwindcss";
 
+/* Calmly Writer Inspired Design System */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Colors - Warm, muted palette for tranquility */
+  --background: #fefefe;
+  --surface: #fbfbfb;
+  --surface-elevated: #ffffff;
+  --border: #e8e8e8;
+  --border-subtle: #f0f0f0;
+
+  --foreground: #2a2a2a;
+  --foreground-secondary: #6b7280;
+  --foreground-muted: #9ca3af;
+  --foreground-placeholder: #d1d5db;
+
+  /* Accent colors - Soft, non-distracting */
+  --accent: #3b82f6;
+  --accent-soft: #dbeafe;
+  --accent-hover: #2563eb;
+
+  --success: #10b981;
+  --success-soft: #d1fae5;
+
+  --warning: #f59e0b;
+  --warning-soft: #fef3c7;
+
+  --danger: #ef4444;
+  --danger-soft: #fee2e2;
+
+  /* Shadows for depth without harshness */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+
+  /* Spacing and sizing for generous whitespace */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+
+  /* Border radius for gentle curves */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  /* Typography scale for reading comfort */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+
+  /* Line heights for readability */
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --leading-loose: 2;
 }
 
 @theme inline {
@@ -14,13 +72,311 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Dark mode - Deep, warm blacks with gentle contrast */
+    --background: #0f0f0f;
+    --surface: #141414;
+    --surface-elevated: #1a1a1a;
+    --border: #2a2a2a;
+    --border-subtle: #1f1f1f;
+
+    --foreground: #e5e5e5;
+    --foreground-secondary: #a3a3a3;
+    --foreground-muted: #737373;
+    --foreground-placeholder: #525252;
+
+    --accent: #60a5fa;
+    --accent-soft: #1e3a8a;
+    --accent-hover: #3b82f6;
+
+    --success: #34d399;
+    --success-soft: #064e3b;
+
+    --warning: #fbbf24;
+    --warning-soft: #78350f;
+
+    --danger: #f87171;
+    --danger-soft: #7f1d1d;
+
+    /* Softer shadows for dark mode */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
   }
+}
+
+/* Base styles with focus on reading and tranquility */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  line-height: var(--leading-normal);
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-weight: 400;
+  line-height: var(--leading-normal);
+  letter-spacing: -0.01em;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Typography hierarchy for content clarity */
+.text-reading {
+  font-family: 'Crimson Text', Georgia, 'Times New Roman', serif;
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  color: var(--foreground);
+}
+
+.text-interface {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 400;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  line-height: var(--leading-tight);
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-md);
+  color: var(--foreground);
+}
+
+h1 {
+  font-size: var(--text-3xl);
+  font-weight: 700;
+}
+
+h2 {
+  font-size: var(--text-2xl);
+}
+
+h3 {
+  font-size: var(--text-xl);
+}
+
+p {
+  margin-bottom: var(--space-md);
+  line-height: var(--leading-normal);
+}
+
+/* Links with subtle styling */
+a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+a:hover {
+  color: var(--accent-hover);
+  border-bottom-color: var(--accent-hover);
+}
+
+/* Form elements with gentle styling */
+input, textarea, select {
+  font-family: 'Inter', sans-serif;
+  font-size: var(--text-base);
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  color: var(--foreground);
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: var(--background);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--foreground-placeholder);
+}
+
+/* Buttons with calm, confident styling */
+button {
+  font-family: 'Inter', sans-serif;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--foreground-secondary);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+  background: var(--surface-elevated);
+  color: var(--foreground);
+  border-color: var(--accent);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--foreground-secondary);
+}
+
+.btn-ghost:hover {
+  background: var(--surface);
+  color: var(--foreground);
+}
+
+/* Cards and surfaces */
+.card {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-xl);
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border);
+}
+
+/* Spacing utilities for generous whitespace */
+.space-y-comfortable > * + * {
+  margin-top: var(--space-lg);
+}
+
+.space-y-generous > * + * {
+  margin-top: var(--space-2xl);
+}
+
+/* Page layout utilities for centered, comfortable reading */
+.page-container {
+  max-width: 65rem;
+  margin: 0 auto;
+  padding: var(--space-2xl);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.page-content {
+  width: 100%;
+  max-width: 50rem;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.reading-width {
+  max-width: 45rem;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.wide-content {
+  max-width: 75rem;
+  margin: 0 auto;
+}
+
+/* Focus states that are visible but not jarring */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Scrollbars with subtle styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: var(--radius-sm);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--foreground-muted);
+}
+
+/* Selection with calm accent color */
+::selection {
+  background: var(--accent-soft);
+  color: var(--foreground);
+}
+
+/* Animations that feel natural */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Loading states */
+.loading {
+  opacity: 0.7;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+/* Borders and dividers */
+.border-gentle {
+  border-color: var(--border-subtle);
+}
+
+.divide-gentle > * + * {
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* Helper box positioning - truly fixed to viewport */
+.helper-box {
+  position: fixed !important;
+  bottom: 1.5rem !important;
+  right: 1.5rem !important;
+  z-index: 9999 !important;
+  max-width: 20rem;
+  pointer-events: auto !important;
+  /* Ensure it's always relative to viewport, not any positioned parent */
+  transform: none !important;
+  margin: 0 !important;
 }

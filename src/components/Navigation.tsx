@@ -13,57 +13,71 @@ export default function Navigation() {
     { href: '/reader', label: 'Reader', key: 'v' },
     { href: '/ledger', label: 'Ledger', key: 'b' },
     { href: '/join', label: 'Join', key: 'n' },
-    { href: '/graph', label: 'Graph', key: 'm' }
+    { href: '/graph', label: 'Graph', key: 'm' },
   ];
 
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      // Only handle navigation if no input is focused and no modifiers are pressed
-      if (event.target instanceof HTMLInputElement ||
-          event.target instanceof HTMLTextAreaElement ||
-          event.ctrlKey || event.metaKey || event.altKey) {
-        return;
-      }
+    const onKey = (e: KeyboardEvent) => {
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement ||
+        e.ctrlKey || e.metaKey || e.altKey
+      ) return;
 
-      const item = navItems.find(nav => nav.key === event.key.toLowerCase());
+      const item = navItems.find(n => n.key === e.key.toLowerCase());
       if (item) {
-        event.preventDefault();
+        e.preventDefault();
         router.push(item.href);
       }
     };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [router]);
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [router, navItems]);
 
   return (
-    <nav className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex items-center">
-            <Link href="/" className="text-xl font-bold text-gray-900 dark:text-white">
-              WikiGame
-            </Link>
-          </div>
-          <div className="flex space-x-8">
-            {navItems.map(item => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`
-                  inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium group
-                  ${pathname === item.href
-                    ? 'border-blue-500 text-gray-900 dark:text-white'
-                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300'
-                  }
-                `}
-              >
-                <span>{item.label}</span>
-                <kbd className="ml-2 px-1.5 py-0.5 text-xs font-mono bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded border border-gray-300 dark:border-gray-600 group-hover:bg-gray-200 dark:group-hover:bg-gray-600">
-                  {item.key}
-                </kbd>
-              </Link>
-            ))}
+    <nav
+      style={{
+        background: 'var(--surface-elevated)',
+        borderBottom: '1px solid var(--border-subtle)',
+        boxShadow: 'var(--shadow-sm)',
+      }}
+    >
+      <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
+        <div className="flex justify-between items-center h-20 md:h-24">
+          <Link
+            href="/"
+            className="text-xl font-bold"
+            style={{
+              color: 'var(--foreground)',
+              fontSize: 'var(--text-xl)',
+              fontWeight: '700',
+              letterSpacing: '-0.02em',
+            }}
+          >
+            WikiGame
+          </Link>
+
+          {/* links */}
+          <div className="flex items-center gap-x-8 md:gap-x-16">
+            {navItems.map((item) => {
+              const active = pathname === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="inline-flex items-center rounded-md transition-all duration-200"
+                  style={{
+                    padding: '0.5rem 0.75rem', // ~px-3 py-2
+                    color: active ? 'var(--accent)' : 'var(--foreground-secondary)',
+                    fontWeight: active ? 600 : 500,
+                    backgroundColor: active ? 'var(--accent-soft)' : 'transparent',
+                  }}
+                  aria-current={active ? 'page' : undefined}
+                >
+                  <span className="text-sm md:text-base">{item.label}</span>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </div>

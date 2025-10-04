@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, memo, useMemo, useCallback } from 'react'
 import * as d3 from 'd3'
 import { UMAP } from 'umap-js'
 import { Entry } from '@/lib/types'
+import { getColorForString } from '@/lib/colors'
 
 interface UMAPVisualizationProps {
   entries: Entry[]
@@ -399,13 +400,8 @@ function UMAPVisualization({
         return Math.max(8, Math.min(20, 8 + joinCount * 2))
       })
       .attr('fill', d => {
-        // Color based on article
-        const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4']
-        const hash = d.entry.metadata.article?.split('').reduce((a, b) => {
-          a = ((a << 5) - a) + b.charCodeAt(0)
-          return a & a
-        }, 0) || 0
-        return colors[Math.abs(hash) % colors.length]
+        // Color based on article using new color system
+        return getColorForString(d.entry.metadata.article || 'unknown')
       })
       .attr('stroke', d => d.entry.id === newlyAddedEntryId ? '#ff6b35' : '#fff')
       .attr('stroke-width', (d: any) => d.entry.id === newlyAddedEntryId ? 4 : 2)
