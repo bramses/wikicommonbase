@@ -7,18 +7,28 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const groupBy = searchParams.get('groupBy');
-    const limit = parseInt(searchParams.get('limit') || '50');
+    const limitParam = searchParams.get('limit');
+    const limit = limitParam === 'all' ? undefined : parseInt(limitParam || '50');
+    const includeEmbeddings = searchParams.get('includeEmbeddings') === 'true';
 
-    const result = await db.select({
+    const selectFields = {
       id: entries.id,
       data: entries.data,
       metadata: entries.metadata,
       created_at: entries.createdAt,
       updated_at: entries.updatedAt,
-    })
-    .from(entries)
-    .orderBy(desc(entries.createdAt))
-    .limit(limit);
+      ...(includeEmbeddings && { embedding: entries.embedding }),
+    };
+
+    let query = db.select(selectFields)
+      .from(entries)
+      .orderBy(desc(entries.createdAt));
+
+    if (limit !== undefined) {
+      query = query.limit(limit);
+    }
+
+    const result = await query;
 
     const entriesData: Entry[] = result.map(row => ({
       id: row.id,
@@ -26,6 +36,7 @@ export async function GET(request: NextRequest) {
       metadata: row.metadata,
       created_at: row.created_at,
       updated_at: row.updated_at,
+      ...(includeEmbeddings && (row as any).embedding && { embedding: (row as any).embedding }),
     }));
 
     if (groupBy === 'article-section') {

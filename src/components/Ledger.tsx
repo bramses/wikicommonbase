@@ -48,7 +48,8 @@ export default function Ledger() {
   const openInReader = (entry: Entry) => {
     const params = new URLSearchParams({
       article: entry.metadata.article,
-      highlight: entry.data.substring(0, 100)
+      highlight: entry.data,
+      scrollToHighlight: 'true'
     });
     window.open(`/reader?${params.toString()}`, '_blank');
   };

@@ -160,6 +160,16 @@ export default function DistractionFreeReader({ content, initialHighlight }: Dis
       );
       if (foundIndex !== -1) {
         setCurrentSentenceIndex(foundIndex);
+        // Scroll to the found sentence after a short delay to ensure DOM is ready
+        setTimeout(() => {
+          const sentenceElement = sentenceRefs.current[foundIndex];
+          if (sentenceElement) {
+            sentenceElement.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center'
+            });
+          }
+        }, 300);
       }
     }
   }, [content, initialHighlight]);

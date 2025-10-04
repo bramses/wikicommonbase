@@ -111,7 +111,14 @@ export default function JoinView() {
   }, []);
 
   const handleKeyDown = useCallback(async (event: KeyboardEvent) => {
-    // If search input is focused, only handle Enter and slash keys
+    // Handle slash key globally (even when input is focused)
+    if (event.key === '/') {
+      event.preventDefault();
+      searchInputRef.current?.focus();
+      return;
+    }
+
+    // If search input is focused, only handle Enter
     if (event.target === searchInputRef.current) {
       if (event.key === 'Enter') {
         event.preventDefault();
@@ -153,11 +160,6 @@ export default function JoinView() {
       case 'R':
         event.preventDefault();
         await loadRandomHighlight();
-        searchInputRef.current?.focus();
-        break;
-      case '/':
-        // Focus search input when "/" is pressed (like vim)
-        event.preventDefault();
         searchInputRef.current?.focus();
         break;
     }
