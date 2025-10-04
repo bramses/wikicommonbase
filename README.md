@@ -2,6 +2,12 @@
 
 A distraction-free Wikipedia reading experience with highlighting and connection features. Build your personal knowledge graph by highlighting passages and connecting related content using semantic search.
 
+<img width="3442" height="2548" alt="screencapture-localhost-3001-reader-2025-10-04-19_42_13" src="https://github.com/user-attachments/assets/4ef2cf1a-bf2f-4cc5-a505-0ffd10386b34" />
+<img width="3436" height="1624" alt="Screenshot 2025-10-04 19-44-38" src="https://github.com/user-attachments/assets/0d12d9b0-e5c8-43b8-b49d-77b09496bc3a" />
+<img width="2396" height="1416" alt="Screenshot 2025-10-04 19-44-24" src="https://github.com/user-attachments/assets/a0b19126-a3b0-47fe-87b8-102fa867cedc" />
+<img width="3444" height="1626" alt="Screenshot 2025-10-04 19-44-09" src="https://github.com/user-attachments/assets/66db3f08-2e7d-4a00-b13a-11dd35b395e3" />
+
+
 ## Features
 
 ### 📖 Distraction-Free Reader
