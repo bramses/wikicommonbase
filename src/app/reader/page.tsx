@@ -37,7 +37,7 @@ export default async function ReaderPage({ searchParams }: ReaderPageProps) {
     return (
       <div className="max-w-4xl mx-auto p-8">
         <h1 className="text-2xl font-bold mb-4">Article Not Found</h1>
-        <p className="mb-4">The article "{articleTitle}" could not be loaded.</p>
+        <p className="mb-4">The article &quot;{articleTitle}&quot; could not be loaded.</p>
         <div className="space-y-2">
           <p className="text-sm text-gray-600">Try:</p>
           <ul className="text-sm text-gray-600 list-disc pl-6 space-y-1">
@@ -68,7 +68,7 @@ export default async function ReaderPage({ searchParams }: ReaderPageProps) {
     return (
       <div className="max-w-4xl mx-auto p-8">
         <h1 className="text-2xl font-bold mb-4">No Content Available</h1>
-        <p className="mb-4">The article "{articleTitle}" exists but has no readable content.</p>
+        <p className="mb-4">The article &quot;{articleTitle}&quot; exists but has no readable content.</p>
         <Link
           href={createUrlWithCategories('/reader', categories)}
           className="inline-block px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"

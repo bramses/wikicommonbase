@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db, entries } from '@/lib/db';
-import { Entry } from '@/lib/types';
+import { Entry, EntryMetadata } from '@/lib/types';
 import { desc } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
@@ -22,16 +22,23 @@ export async function GET(request: NextRequest) {
       ...(includeEmbeddings && { embedding: entries.embedding }),
     };
 
-    let query = db.select(selectFields)
+    const queryBuilder = db.select(selectFields)
       .from(entries)
       .orderBy(desc(entries.createdAt));
 
-    if (offset > 0) {
-      query = query.offset(offset);
-    }
-
+    let query;
     if (limit !== undefined) {
-      query = query.limit(limit);
+      if (offset > 0) {
+        query = queryBuilder.limit(limit).offset(offset);
+      } else {
+        query = queryBuilder.limit(limit);
+      }
+    } else {
+      if (offset > 0) {
+        query = queryBuilder.offset(offset);
+      } else {
+        query = queryBuilder;
+      }
     }
 
     const result = await query;
@@ -39,10 +46,10 @@ export async function GET(request: NextRequest) {
     const entriesData: Entry[] = result.map(row => ({
       id: row.id,
       data: row.data,
-      metadata: row.metadata,
+      metadata: row.metadata as EntryMetadata,
       created_at: row.created_at,
       updated_at: row.updated_at,
-      ...(includeEmbeddings && (row as any).embedding && { embedding: (row as any).embedding }),
+      ...(includeEmbeddings && (row as { embedding?: number[] }).embedding && { embedding: (row as { embedding?: number[] }).embedding }),
     }));
 
     if (groupBy === 'article-section') {

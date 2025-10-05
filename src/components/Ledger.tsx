@@ -70,11 +70,11 @@ export default function Ledger() {
               Object.entries(data.grouped).forEach(([key, entries]) => {
                 if (newGrouped[key]) {
                   // Deduplicate entries in each group
-                  const existingIds = new Set(newGrouped[key].map(entry => entry.id));
-                  const uniqueNewEntries = entries.filter(entry => !existingIds.has(entry.id));
+                  const existingIds = new Set(newGrouped[key].map((entry: Entry) => entry.id));
+                  const uniqueNewEntries = (entries as Entry[]).filter((entry: Entry) => !existingIds.has(entry.id));
                   newGrouped[key] = [...newGrouped[key], ...uniqueNewEntries];
                 } else {
-                  newGrouped[key] = entries;
+                  newGrouped[key] = entries as Entry[];
                 }
               });
               return newGrouped;
@@ -93,7 +93,7 @@ export default function Ledger() {
             setEntries(prev => {
               // Deduplicate entries by ID
               const existingIds = new Set(prev.map(entry => entry.id));
-              const uniqueNewEntries = newEntries.filter(entry => !existingIds.has(entry.id));
+              const uniqueNewEntries = (newEntries as Entry[]).filter((entry: Entry) => !existingIds.has(entry.id));
               return [...prev, ...uniqueNewEntries];
             });
           } else {
@@ -182,7 +182,7 @@ export default function Ledger() {
         markdown += `![Entry image](${entry.metadata.img_url})\n\n`;
       }
 
-      markdown += `*Added: ${formatDate(entry.created_at)}*\n\n`;
+      markdown += `*Added: ${formatDate(entry.created_at.toString())}*\n\n`;
 
       if (entry.metadata.joins.length > 0) {
         markdown += `*Connected to ${entry.metadata.joins.length} other highlight${entry.metadata.joins.length !== 1 ? 's' : ''}*\n\n`;
@@ -379,7 +379,9 @@ export default function Ledger() {
                     onOpen={openInReader}
                     onScrollToEntry={scrollToEntry}
                     fetchJoinedEntries={fetchJoinedEntries}
-                    ref={(el) => entryRefs.current[entry.id] = el}
+                    ref={(el) => {
+                      entryRefs.current[entry.id] = el;
+                    }}
                   />
                 ))}
               </div>
@@ -395,7 +397,9 @@ export default function Ledger() {
               onOpen={openInReader}
               onScrollToEntry={scrollToEntry}
               fetchJoinedEntries={fetchJoinedEntries}
-              ref={(el) => entryRefs.current[entry.id] = el}
+              ref={(el) => {
+                entryRefs.current[entry.id] = el;
+              }}
             />
           ))}
         </div>

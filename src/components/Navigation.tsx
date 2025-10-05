@@ -32,7 +32,7 @@ export default function Navigation() {
         const response = await fetch('/api/entries?limit=1000'); // Get a large batch to count accurately
         if (response.ok) {
           const data = await response.json();
-          const unconnectedCount = data.entries.filter((entry: any) => entry.metadata.joins.length === 0).length;
+          const unconnectedCount = data.entries.filter((entry: { metadata: { joins: string[] } }) => entry.metadata.joins.length === 0).length;
           setUnconnectedCount(unconnectedCount);
         }
       } catch (error) {

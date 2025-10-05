@@ -26,17 +26,15 @@ function UMAPVisualization({
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text
   }
 
-  const entryCount = entries.length
-
   // Throttled zoom handler for better performance
-  const handleZoom = useCallback((event: any, g: d3.Selection<SVGGElement, unknown, null, undefined>) => {
+  const handleZoom = useCallback((event: { transform: d3.ZoomTransform }, g: d3.Selection<SVGGElement, unknown, null, undefined>) => {
     // Clear existing timeout
     if (zoomTimeoutRef.current) {
       clearTimeout(zoomTimeoutRef.current)
     }
 
     // Apply transform immediately for responsiveness
-    g.attr('transform', event.transform)
+    g.attr('transform', event.transform.toString())
 
     // Throttle additional processing
     zoomTimeoutRef.current = setTimeout(() => {
@@ -84,9 +82,9 @@ function UMAPVisualization({
       const validEntries: Entry[] = []
       const validEmbeddings: number[][] = []
 
-      entries.forEach((entry, index) => {
+      entries.forEach((entry) => {
         // Your entries have embeddings in the database as arrays
-        const embedding = (entry as any).embedding
+        const embedding = (entry as { embedding?: number[] }).embedding
 
         console.log(`Entry ${entry.id}: embedding type=${typeof embedding}, isArray=${Array.isArray(embedding)}, length=${Array.isArray(embedding) ? embedding.length : 'N/A'}`)
 
@@ -218,7 +216,7 @@ function UMAPVisualization({
       console.log('Entry IDs:', entries.map(e => e.id).slice(0, 5))
     }
     return applyUMAPPositioning(entries)
-  }, [entries.length, entryIds, applyUMAPPositioning])
+  }, [entries, entryIds, applyUMAPPositioning])
 
   useEffect(() => {
     if (!svgRef.current || !positionedEntries.length || !dimensions.width) return
@@ -404,7 +402,7 @@ function UMAPVisualization({
         return getColorForString(d.entry.metadata.article || 'unknown')
       })
       .attr('stroke', d => d.entry.id === newlyAddedEntryId ? '#ff6b35' : '#fff')
-      .attr('stroke-width', (d: any) => d.entry.id === newlyAddedEntryId ? 4 : 2)
+      .attr('stroke-width', (d: { entry: Entry }) => d.entry.id === newlyAddedEntryId ? 4 : 2)
 
     // Add hover effects
     nodes.on('mouseenter', function(event, d) {
@@ -445,12 +443,15 @@ function UMAPVisualization({
     })
     .on('mouseleave', function() {
       requestAnimationFrame(() => {
-        d3.select(this).select('circle').attr('stroke-width', (d: any) => d.entry.id === newlyAddedEntryId ? 4 : 2)
+        d3.select(this).select('circle').attr('stroke-width', function(d: unknown) {
+          const typedData = d as { entry: Entry };
+          return typedData.entry.id === newlyAddedEntryId ? 4 : 2;
+        })
         d3.selectAll('.tooltip').remove()
       })
     })
 
-  }, [positionedEntries, dimensions.width, dimensions.height, newlyAddedEntryId, onNodeClick])
+  }, [positionedEntries, dimensions.width, dimensions.height, newlyAddedEntryId, onNodeClick, handleZoom])
 
   return (
     <div className="relative w-full h-full">

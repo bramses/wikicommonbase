@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db, entries } from '@/lib/db';
 import { getEmbedding } from '@/lib/openai';
-import { SearchResult } from '@/lib/types';
+import { SearchResult, EntryMetadata } from '@/lib/types';
 import { sql } from 'drizzle-orm';
 
 export async function POST(request: NextRequest) {
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
       entry: {
         id: row.entry.id,
         data: row.entry.data,
-        metadata: row.entry.metadata,
+        metadata: row.entry.metadata as EntryMetadata,
         created_at: row.entry.createdAt,
         updated_at: row.entry.updatedAt,
       },

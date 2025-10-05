@@ -30,6 +30,8 @@ function cleanWikipediaText(text: string): string {
     .trim();
 }
 
+// Unused function - commented out to fix linting
+/*
 function cleanWikipediaHTML(html: string): string {
   return html
     // Remove edit links
@@ -64,6 +66,7 @@ function cleanWikipediaHTML(html: string): string {
     .replace(/<li([^>]*)>/gi, '<li$1 class="ml-4">')
     .trim();
 }
+*/
 
 export async function fetchWikipediaArticle(title: string): Promise<WikipediaContent | null> {
   try {
@@ -173,7 +176,7 @@ export async function getRandomWikipediaTitle(categories?: string[]): Promise<st
     }
 
     // Get all page titles and pick one randomly
-    const titles = Object.values(pages).map((page: any) => page.title);
+    const titles = Object.values(pages).map((page: unknown) => (page as { title: string }).title);
     if (titles.length === 0) {
       return getRandomWikipediaTitle();
     }

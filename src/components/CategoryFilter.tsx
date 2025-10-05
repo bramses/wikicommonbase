@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { WIKIPEDIA_CATEGORIES, type WikipediaCategory } from '@/lib/categories';
+import { WIKIPEDIA_CATEGORIES } from '@/lib/categories';
 
 interface CategoryFilterProps {
   selectedCategories: string[];

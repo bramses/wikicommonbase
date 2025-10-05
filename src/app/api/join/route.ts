@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db, entries } from '@/lib/db';
 import { eq, sql } from 'drizzle-orm';
+import { EntryMetadata } from '@/lib/types';
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,8 +26,8 @@ export async function POST(request: NextRequest) {
       }
 
       // Update metadata for both entries
-      const metadata1 = entry1.metadata as any;
-      const metadata2 = entry2.metadata as any;
+      const metadata1 = entry1.metadata as EntryMetadata;
+      const metadata2 = entry2.metadata as EntryMetadata;
 
       if (!metadata1.joins.includes(id2)) {
         metadata1.joins.push(id2);

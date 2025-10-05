@@ -60,7 +60,7 @@ export default function Inbox() {
           setEntries(prev => {
             // Deduplicate entries by ID
             const existingIds = new Set(prev.map(entry => entry.id));
-            const uniqueNewEntries = unconnectedEntries.filter(entry => !existingIds.has(entry.id));
+            const uniqueNewEntries = unconnectedEntries.filter((entry: Entry) => !existingIds.has(entry.id));
             return [...prev, ...uniqueNewEntries];
           });
         } else {

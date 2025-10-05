@@ -386,7 +386,7 @@ export default function DistractionFreeReader({ content, initialHighlight, categ
         {paragraphs.map((paragraph, paragraphIndex) => {
           if (paragraph.isHeading) {
             const level = paragraph.headingLevel || 2;
-            const HeadingTag = `h${Math.min(level, 6)}` as keyof JSX.IntrinsicElements;
+            const HeadingTag = `h${Math.min(level, 6)}` as keyof React.JSX.IntrinsicElements;
             const headingClasses = {
               2: 'text-2xl font-bold mt-8 mb-4',
               3: 'text-xl font-bold mt-6 mb-3',
@@ -419,7 +419,9 @@ export default function DistractionFreeReader({ content, initialHighlight, categ
                 return (
                   <span
                     key={sentence.index}
-                    ref={el => sentenceRefs.current[globalSentenceIndex] = el}
+                    ref={el => {
+                      sentenceRefs.current[globalSentenceIndex] = el;
+                    }}
                     style={{
                       backgroundColor: isCurrentSentence && isHighlighted
                         ? 'var(--success-soft)'
