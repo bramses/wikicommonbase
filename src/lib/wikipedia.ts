@@ -140,14 +140,45 @@ export async function fetchWikipediaArticle(title: string): Promise<WikipediaCon
   }
 }
 
-export async function getRandomWikipediaTitle(): Promise<string | null> {
+export async function getRandomWikipediaTitle(categories?: string[]): Promise<string | null> {
   try {
-    const response = await fetch('https://en.wikipedia.org/api/rest_v1/page/random/summary');
-    if (!response.ok) {
-      return null;
+    // If no categories specified, use the default random endpoint
+    if (!categories || categories.length === 0) {
+      const response = await fetch('https://en.wikipedia.org/api/rest_v1/page/random/summary');
+      if (!response.ok) {
+        return null;
+      }
+      const data = await response.json();
+      return data.title;
     }
+
+    // Pick a random category from the selected ones
+    const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+
+    // Get a random page from the selected category
+    const url = `https://en.wikipedia.org/w/api.php?action=query&generator=categorymembers&gcmtitle=Category:${encodeURIComponent(randomCategory)}&gcmtype=page&gcmlimit=50&prop=info&format=json&origin=*`;
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      // Fallback to default random if category query fails
+      return getRandomWikipediaTitle();
+    }
+
     const data = await response.json();
-    return data.title;
+    const pages = data.query?.pages;
+
+    if (!pages) {
+      // Fallback to default random if no pages found
+      return getRandomWikipediaTitle();
+    }
+
+    // Get all page titles and pick one randomly
+    const titles = Object.values(pages).map((page: any) => page.title);
+    if (titles.length === 0) {
+      return getRandomWikipediaTitle();
+    }
+
+    return titles[Math.floor(Math.random() * titles.length)] as string;
   } catch (error) {
     console.error('Error fetching random Wikipedia title:', error);
     return null;

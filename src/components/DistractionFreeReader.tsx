@@ -3,10 +3,12 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { WikipediaContent } from '@/lib/wikipedia';
 import { EntryMetadata } from '@/lib/types';
+import { createUrlWithCategories } from '@/lib/categories';
 
 interface DistractionFreeReaderProps {
   content: WikipediaContent;
   initialHighlight?: string;
+  categories?: string[];
 }
 
 interface Paragraph {
@@ -24,7 +26,7 @@ interface Sentence {
   paragraphIndex: number;
 }
 
-export default function DistractionFreeReader({ content, initialHighlight }: DistractionFreeReaderProps) {
+export default function DistractionFreeReader({ content, initialHighlight, categories }: DistractionFreeReaderProps) {
   const [paragraphs, setParagraphs] = useState<Paragraph[]>([]);
   const [sentences, setSentences] = useState<Sentence[]>([]);
   const [currentSentenceIndex, setCurrentSentenceIndex] = useState(0);
@@ -310,10 +312,14 @@ export default function DistractionFreeReader({ content, initialHighlight }: Dis
 
   const loadRandomArticle = async () => {
     try {
-      const response = await fetch('/api/random-wiki');
+      const url = categories && categories.length > 0
+        ? `/api/random-wiki?categories=${categories.join(',')}`
+        : '/api/random-wiki';
+
+      const response = await fetch(url);
       if (response.ok) {
         const { article } = await response.json();
-        window.location.href = `/reader?article=${encodeURIComponent(article.title)}`;
+        window.location.href = createUrlWithCategories('/reader', categories || [], { article: article.title });
       }
     } catch (error) {
       console.error('Error loading random article:', error);

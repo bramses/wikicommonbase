@@ -1,6 +1,34 @@
+'use client';
+
 import Link from "next/link";
+import { useState, useEffect } from 'react';
+import CategoryFilter from '@/components/CategoryFilter';
+import { loadSelectedCategories, saveSelectedCategories, createUrlWithCategories } from '@/lib/categories';
 
 export default function Home() {
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Load categories from localStorage on mount
+  useEffect(() => {
+    setSelectedCategories(loadSelectedCategories());
+    setIsLoaded(true);
+  }, []);
+
+  // Save categories to localStorage when they change
+  const handleCategoriesChange = (categories: string[]) => {
+    setSelectedCategories(categories);
+    saveSelectedCategories(categories);
+  };
+
+  // Don't render until we've loaded from localStorage
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">Loading...</div>
+      </div>
+    );
+  }
   return (
     <div
       className="min-h-screen animate-fade-in"
@@ -37,6 +65,11 @@ export default function Home() {
           </p>
         </div>
 
+        <CategoryFilter
+          selectedCategories={selectedCategories}
+          onCategoriesChange={handleCategoriesChange}
+        />
+
         <div className="grid md:grid-cols-2 gap-8 mb-16">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-8 shadow-lg">
             <h2 className="text-2xl font-semibold mb-4">📖 Distraction-Free Reader</h2>
@@ -45,7 +78,7 @@ export default function Home() {
               Highlight interesting passages and paragraphs as you read.
             </p>
             <Link
-              href="/reader"
+              href={createUrlWithCategories('/reader', selectedCategories)}
               className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
             >
               Start Reading

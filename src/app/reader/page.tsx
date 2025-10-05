@@ -2,11 +2,13 @@ import { Suspense } from 'react';
 import Link from 'next/link';
 import DistractionFreeReader from '@/components/DistractionFreeReader';
 import { fetchWikipediaArticle } from '@/lib/wikipedia';
+import { getCategoriesFromParams, createUrlWithCategories } from '@/lib/categories';
 
 interface ReaderPageProps {
   searchParams: Promise<{
     article?: string;
     highlight?: string;
+    categories?: string;
   }>;
 }
 
@@ -15,10 +17,17 @@ export default async function ReaderPage({ searchParams }: ReaderPageProps) {
   let articleTitle = params.article;
   const highlight = params.highlight;
 
+  // Get categories from URL params or localStorage
+  const searchParamsObj = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value) searchParamsObj.set(key, value);
+  });
+  const categories = getCategoriesFromParams(searchParamsObj);
+
   // If no article specified, get a random one
   if (!articleTitle) {
     const { getRandomWikipediaTitle } = await import('@/lib/wikipedia');
-    const randomTitle = await getRandomWikipediaTitle();
+    const randomTitle = await getRandomWikipediaTitle(categories);
     articleTitle = randomTitle || 'Wikipedia';
   }
 
@@ -39,7 +48,7 @@ export default async function ReaderPage({ searchParams }: ReaderPageProps) {
         </div>
         <div className="mt-6 space-x-4">
           <Link
-            href="/reader"
+            href={createUrlWithCategories('/reader', categories)}
             className="inline-block px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
             Try Random Article
@@ -61,7 +70,7 @@ export default async function ReaderPage({ searchParams }: ReaderPageProps) {
         <h1 className="text-2xl font-bold mb-4">No Content Available</h1>
         <p className="mb-4">The article "{articleTitle}" exists but has no readable content.</p>
         <Link
-          href="/reader"
+          href={createUrlWithCategories('/reader', categories)}
           className="inline-block px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
           Try Random Article
@@ -72,7 +81,7 @@ export default async function ReaderPage({ searchParams }: ReaderPageProps) {
 
   return (
     <Suspense fallback={<div className="p-8 text-center">Loading article content...</div>}>
-      <DistractionFreeReader content={content} initialHighlight={highlight} />
+      <DistractionFreeReader content={content} initialHighlight={highlight} categories={categories} />
     </Suspense>
   );
 }

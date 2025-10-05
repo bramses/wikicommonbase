@@ -2,21 +2,28 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import { loadSelectedCategories, createUrlWithCategories } from '@/lib/categories';
 
 export default function Navigation() {
   const pathname = usePathname();
   const router = useRouter();
   const [unconnectedCount, setUnconnectedCount] = useState(0);
+  const [isClient, setIsClient] = useState(false);
 
-  const navItems = [
+  // Track when we're on the client side to prevent hydration mismatch
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const navItems = useMemo(() => [
     { href: '/', label: 'Home', key: 'c' },
     { href: '/reader', label: 'Reader', key: 'v' },
     { href: '/ledger', label: 'Ledger', key: 'b' },
     { href: '/inbox', label: 'Inbox', key: 'i', badge: unconnectedCount > 0 ? unconnectedCount : undefined },
     { href: '/join', label: 'Join', key: 'n' },
     { href: '/graph', label: 'Graph', key: 'm' },
-  ];
+  ], [unconnectedCount]);
 
   // Fetch unconnected entries count
   useEffect(() => {
@@ -47,12 +54,20 @@ export default function Navigation() {
       const item = navItems.find(n => n.key === e.key.toLowerCase());
       if (item) {
         e.preventDefault();
-        router.push(item.href);
+
+        // For reader page, include categories from localStorage (only on client side)
+        let targetUrl = item.href;
+        if (item.href === '/reader' && isClient) {
+          const categories = loadSelectedCategories();
+          targetUrl = createUrlWithCategories(item.href, categories);
+        }
+
+        router.push(targetUrl);
       }
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [router, navItems]);
+  }, [router, navItems, isClient]);
 
   return (
     <nav
@@ -81,10 +96,15 @@ export default function Navigation() {
           <div className="flex items-center gap-x-8 md:gap-x-16">
             {navItems.map((item) => {
               const active = pathname === item.href;
+              // For reader link, include categories from localStorage (only on client side)
+              const linkUrl = item.href === '/reader' && isClient
+                ? createUrlWithCategories(item.href, loadSelectedCategories())
+                : item.href;
+
               return (
                 <Link
                   key={item.href}
-                  href={item.href}
+                  href={linkUrl}
                   className="inline-flex items-center rounded-md transition-all duration-200"
                   style={{
                     padding: '0.5rem 0.75rem', // ~px-3 py-2
