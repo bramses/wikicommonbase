@@ -30,139 +30,147 @@ export default function Home() {
     );
   }
   return (
-    <div
-      className="min-h-screen animate-fade-in"
-      style={{
-        background: 'linear-gradient(135deg, var(--background) 0%, var(--surface) 100%)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}
-    >
-      <div className="page-content space-y-generous">
-        <div className="space-y-comfortable">
-          <h1
-            style={{
-              fontSize: 'clamp(2.5rem, 5vw, 4rem)',
-              fontWeight: '700',
-              color: 'var(--foreground)',
-              letterSpacing: '-0.03em',
-              marginBottom: 'var(--space-xl)'
-            }}
-          >
+    <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center">
+      <div className="max-w-4xl mx-auto px-6 py-8 text-center">
+
+        {/* Header Section */}
+        <header className="border-b border-gray-200 dark:border-gray-700 pb-6 mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
             Wikipedia Commonbase
           </h1>
-          <p
-            style={{
-              fontSize: 'var(--text-xl)',
-              color: 'var(--foreground-secondary)',
-              lineHeight: 'var(--leading-relaxed)',
-              maxWidth: '600px',
-              margin: '0 auto var(--space-2xl)'
-            }}
-          >
+          <p className="text-gray-600 dark:text-gray-400 text-lg">
             A distraction-free Wikipedia reading experience with highlighting and connection features
           </p>
+        </header>
+
+        {/* Category Filter */}
+        <div className="mb-8">
+          <CategoryFilter
+            selectedCategories={selectedCategories}
+            onCategoriesChange={handleCategoriesChange}
+          />
         </div>
 
-        <CategoryFilter
-          selectedCategories={selectedCategories}
-          onCategoriesChange={handleCategoriesChange}
-        />
+        {/* Main Content Sections */}
+        <main className="space-y-8">
 
-        <div className="grid md:grid-cols-2 gap-8 mb-16">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-8 shadow-lg">
-            <h2 className="text-2xl font-semibold mb-4">📖 Distraction-Free Reader</h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Navigate Wikipedia articles sentence by sentence with keyboard controls.
-              Highlight interesting passages and paragraphs as you read.
-            </p>
-            <Link
-              href={createUrlWithCategories('/reader', selectedCategories)}
-              className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Start Reading
-            </Link>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-8 shadow-lg">
-            <h2 className="text-2xl font-semibold mb-4">📥 Inbox</h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Review unconnected highlights and join them with related content.
-              Keep your knowledge graph organized and connected.
-            </p>
-            <Link
-              href="/inbox"
-              className="inline-block bg-yellow-600 text-white px-6 py-3 rounded-lg hover:bg-yellow-700 transition-colors"
-            >
-              View Inbox
-            </Link>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-8 shadow-lg">
-            <h2 className="text-2xl font-semibold mb-4">🔗 Join Highlights</h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Connect related highlights using semantic search. Build a web of
-              knowledge by joining passages that share common themes or ideas.
-            </p>
-            <Link
-              href="/join"
-              className="inline-block bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
-            >
-              Join Highlights
-            </Link>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-8 shadow-lg">
-            <h2 className="text-2xl font-semibold mb-4">📚 Highlight Ledger</h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              View all your saved highlights in a searchable table. Group by article
-              and section, or browse chronologically.
-            </p>
-            <Link
-              href="/ledger"
-              className="inline-block bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors"
-            >
-              View Ledger
-            </Link>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-8 shadow-lg">
-            <h2 className="text-2xl font-semibold mb-4">🕸️ Knowledge Graph</h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Visualize your highlights and their connections in an interactive graph.
-              Explore the relationships between different concepts and ideas.
-            </p>
-            <Link
-              href="/graph"
-              className="inline-block bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition-colors"
-            >
-              Explore Graph
-            </Link>
-          </div>
-        </div>
-
-        <div className="text-center">
-          <h3 className="text-2xl font-semibold mb-4">Getting Started</h3>
-          <div className="max-w-2xl mx-auto text-left space-y-4 text-gray-600 dark:text-gray-400">
-            <div className="flex items-start gap-3">
-              <span className="bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-semibold">1</span>
-              <p>Press <kbd className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-sm">R</kbd> in the reader to load a random Wikipedia article</p>
+          {/* Reading Tools Section */}
+          <section>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">
+              Reading Tools
+            </h2>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+                  <Link
+                    href={createUrlWithCategories('/reader', selectedCategories)}
+                    className="text-blue-600 dark:text-blue-400 hover:underline"
+                  >
+                    Distraction-Free Reader
+                  </Link>
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Navigate Wikipedia articles sentence by sentence with keyboard controls.
+                  Highlight interesting passages and paragraphs as you read.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+                  <Link
+                    href="/inbox"
+                    className="text-blue-600 dark:text-blue-400 hover:underline"
+                  >
+                    Inbox
+                  </Link>
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Review unconnected highlights and join them with related content.
+                  Keep your knowledge graph organized and connected.
+                </p>
+              </div>
             </div>
-            <div className="flex items-start gap-3">
-              <span className="bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-semibold">2</span>
-              <p>Use <kbd className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-sm">↑↓</kbd> to navigate sentences, <kbd className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-sm">S</kbd> to highlight sentences, <kbd className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-sm">P</kbd> to highlight paragraphs</p>
+          </section>
+
+          {/* Organization Tools Section */}
+          <section>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">
+              Organization Tools
+            </h2>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+                  <Link
+                    href="/join"
+                    className="text-blue-600 dark:text-blue-400 hover:underline"
+                  >
+                    Join Highlights
+                  </Link>
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Connect related highlights using semantic search. Build a web of
+                  knowledge by joining passages that share common themes or ideas.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+                  <Link
+                    href="/ledger"
+                    className="text-blue-600 dark:text-blue-400 hover:underline"
+                  >
+                    Highlight Ledger
+                  </Link>
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  View all your saved highlights in a searchable table. Group by article
+                  and section, or browse chronologically.
+                </p>
+              </div>
             </div>
-            <div className="flex items-start gap-3">
-              <span className="bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-semibold">3</span>
-              <p>Visit the Join page to connect related highlights using semantic search</p>
+          </section>
+
+          {/* Visualization Tools Section */}
+          <section>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">
+              Visualization
+            </h2>
+            <div>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+                <Link
+                  href="/graph"
+                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  Knowledge Graph
+                </Link>
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                Visualize your highlights and their connections in an interactive graph.
+                Explore the relationships between different concepts and ideas.
+              </p>
             </div>
-            <div className="flex items-start gap-3">
-              <span className="bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-semibold">4</span>
-              <p>Explore your knowledge graph to discover unexpected connections</p>
-            </div>
-          </div>
-        </div>
+          </section>
+
+          {/* Getting Started Section */}
+          <section>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">
+              Getting Started
+            </h2>
+            <ol className="space-y-3 text-gray-600 dark:text-gray-400 text-left max-w-2xl mx-auto">
+              <li>
+                <strong>1.</strong> Press <kbd className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-sm font-mono">R</kbd> in the reader to load a random Wikipedia article
+              </li>
+              <li>
+                <strong>2.</strong> Use <kbd className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-sm font-mono">↑↓</kbd> to navigate sentences, <kbd className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-sm font-mono">S</kbd> to highlight sentences, <kbd className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-sm font-mono">P</kbd> to highlight paragraphs
+              </li>
+              <li>
+                <strong>3.</strong> Visit the <Link href="/join" className="text-blue-600 dark:text-blue-400 hover:underline">Join page</Link> to connect related highlights using semantic search
+              </li>
+              <li>
+                <strong>4.</strong> Explore your <Link href="/graph" className="text-blue-600 dark:text-blue-400 hover:underline">knowledge graph</Link> to discover unexpected connections
+              </li>
+            </ol>
+          </section>
+
+        </main>
       </div>
     </div>
   );

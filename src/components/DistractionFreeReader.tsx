@@ -31,7 +31,14 @@ export default function DistractionFreeReader({ content, initialHighlight, categ
   const [sentences, setSentences] = useState<Sentence[]>([]);
   const [currentSentenceIndex, setCurrentSentenceIndex] = useState(0);
   const [highlightedSentences, setHighlightedSentences] = useState<Set<number>>(new Set());
+  const [isHydrated, setIsHydrated] = useState(false);
   const sentenceRefs = useRef<(HTMLSpanElement | null)[]>([]);
+
+  // Check if component is hydrated (client-side)
+  useEffect(() => {
+    setIsHydrated(true);
+    console.log('DistractionFreeReader hydrated, isClient:', typeof window !== 'undefined');
+  }, []);
 
   const parseParagraphs = useCallback(() => {
     const allParagraphs: Paragraph[] = [];
@@ -186,11 +193,37 @@ export default function DistractionFreeReader({ content, initialHighlight, categ
   }, [sentences.length]);
 
   const scrollToSentence = useCallback((index: number) => {
-    const sentenceElement = sentenceRefs.current[index];
-    if (sentenceElement) {
-      sentenceElement.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center'
+    // Multiple attempts with increasing delays to handle production builds
+    const performScroll = (attempt = 1, maxAttempts = 5) => {
+      let sentenceElement = sentenceRefs.current[index];
+
+      // Fallback: try to find the element by data attribute if ref is null
+      if (!sentenceElement && typeof window !== 'undefined') {
+        sentenceElement = document.querySelector(`[data-sentence-index="${index}"]`) as HTMLSpanElement;
+        if (sentenceElement) {
+          console.log(`Found sentence ${index} via DOM query as fallback`);
+        }
+      }
+
+      if (sentenceElement) {
+        sentenceElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        });
+        console.log(`Successfully scrolled to sentence ${index} on attempt ${attempt}`);
+      } else {
+        console.warn(`Sentence element at index ${index} not found on attempt ${attempt}`);
+        if (attempt < maxAttempts) {
+          // Try again with exponential backoff
+          setTimeout(() => performScroll(attempt + 1, maxAttempts), attempt * 200);
+        }
+      }
+    };
+
+    // Use multiple strategies for production builds
+    if (typeof window !== 'undefined') {
+      requestAnimationFrame(() => {
+        setTimeout(() => performScroll(), 100);
       });
     }
   }, []);
@@ -246,6 +279,17 @@ export default function DistractionFreeReader({ content, initialHighlight, categ
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
+
+  // Auto-scroll to current sentence when it changes
+  useEffect(() => {
+    if (currentSentenceIndex >= 0 && sentences.length > 0 && isHydrated) {
+      console.log(`Auto-scrolling to sentence ${currentSentenceIndex} out of ${sentences.length} sentences`);
+      console.log(`Refs array length: ${sentenceRefs.current.length}`);
+      console.log(`Is production build: ${process.env.NODE_ENV === 'production'}`);
+      console.log(`Is hydrated: ${isHydrated}`);
+      scrollToSentence(currentSentenceIndex);
+    }
+  }, [currentSentenceIndex, scrollToSentence, isHydrated]);
 
   const highlightCurrentSentence = async () => {
     const currentSentence = sentences[currentSentenceIndex];
@@ -419,8 +463,15 @@ export default function DistractionFreeReader({ content, initialHighlight, categ
                 return (
                   <span
                     key={sentence.index}
+                    data-sentence-index={globalSentenceIndex}
                     ref={el => {
-                      sentenceRefs.current[globalSentenceIndex] = el;
+                      if (el && globalSentenceIndex >= 0) {
+                        sentenceRefs.current[globalSentenceIndex] = el;
+                        console.log(`Set ref for sentence ${globalSentenceIndex}, element exists: ${!!el}, hydrated: ${isHydrated}`);
+                      } else if (!el && globalSentenceIndex >= 0) {
+                        console.log(`Clearing ref for sentence ${globalSentenceIndex}`);
+                        sentenceRefs.current[globalSentenceIndex] = null;
+                      }
                     }}
                     style={{
                       backgroundColor: isCurrentSentence && isHighlighted

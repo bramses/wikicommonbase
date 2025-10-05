@@ -52,7 +52,7 @@ export default function CategoryFilter({ selectedCategories, onCategoriesChange 
               marginBottom: 'var(--space-xs)'
             }}
           >
-            🎯 Filter Random Articles
+          Filter Random Articles
           </h3>
           <p
             style={{
