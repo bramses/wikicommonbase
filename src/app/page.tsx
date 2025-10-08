@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect } from 'react';
 import CategoryFilter from '@/components/CategoryFilter';
+import ReadingList from '@/components/ReadingList';
 import { loadSelectedCategories, saveSelectedCategories, createUrlWithCategories } from '@/lib/categories';
 
 export default function Home() {
@@ -34,7 +35,7 @@ export default function Home() {
       <div className="max-w-4xl mx-auto px-6 py-8 text-center">
 
         {/* Header Section */}
-        <header className="border-b border-gray-200 dark:border-gray-700 pb-6 mb-8">
+        <header className="pb-6 mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
             Wikipedia Commonbase
           </h1>
@@ -51,12 +52,20 @@ export default function Home() {
           />
         </div>
 
+        {/* Reading List */}
+        <section className="mb-8">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+            Reading List
+          </h2>
+          <ReadingList />
+        </section>
+
         {/* Main Content Sections */}
         <main className="space-y-8">
 
           {/* Reading Tools Section */}
           <section>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
               Reading Tools
             </h2>
             <div className="grid md:grid-cols-2 gap-6">
@@ -93,7 +102,7 @@ export default function Home() {
 
           {/* Organization Tools Section */}
           <section>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
               Organization Tools
             </h2>
             <div className="grid md:grid-cols-2 gap-6">
@@ -130,7 +139,7 @@ export default function Home() {
 
           {/* Visualization Tools Section */}
           <section>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
               Visualization
             </h2>
             <div>
@@ -151,7 +160,7 @@ export default function Home() {
 
           {/* Getting Started Section */}
           <section>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
               Getting Started
             </h2>
             <ol className="space-y-3 text-gray-600 dark:text-gray-400 text-left max-w-2xl mx-auto">
